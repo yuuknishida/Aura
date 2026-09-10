@@ -49,7 +49,7 @@ export default function ChatPanel() {
     }, [isThinking]);
     
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full w-full">
             {/* Header */}
             <div className="flex items-center justify-between px-5 h-16 border-b flex-shrink-0" style={{ borderColor: "var(--color-border)" }}>
                 <div className="flex items-center gap-3">
