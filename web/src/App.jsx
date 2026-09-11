@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import './App.css'
 import NavSidebar from './NavSidebar';
-import ChatPanel from './ChatPanel';
-import ControlPanel from './ControlPanel';
+import ChatView from './ChatView';
+import SystemMonitorView from './SystemMonitorView';
+
 
 function App() {
   const [activeNav, setActiveNav] = useState("chat");
-  const [controlPanel, setControlPanel] = useState("MONITOR");
 
-  const showRightPanel = useState("chat");
+  // const showRightPanel = activeNav === "chat";
 
   return (
     <div className='flex flex-1 h-full' style={{ backgroundColor: 'var(--color-background)' }}>
@@ -17,15 +17,15 @@ function App() {
 
         <div className='flex flex-1 overflow-hidden'>
           <div className='flex-1 overflow-hidden relative' style={{ background: "var(--color-background)" }}>
-            {activeNav === "chat" && <ChatPanel></ChatPanel>}
+            {activeNav === "chat" && <ChatView></ChatView>}
+            {activeNav === "monitor" && <SystemMonitorView></SystemMonitorView>}
           </div>
         </div>
 
-        {showRightPanel && (
+        {/* {showRightPanel && (
           <div className='w-72 flex-shrink-0 overflow-hidden'>
-            <ControlPanel active={controlPanel} setActive={setControlPanel}></ControlPanel>
           </div>
-        )}
+        )} */}
         
 
       </div>

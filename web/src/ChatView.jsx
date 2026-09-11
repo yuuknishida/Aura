@@ -9,7 +9,7 @@ const QUICK_COMMANDS = [
     "Temperature report",
 ];
 
-export default function ChatPanel() {
+export default function ChatView() {
     const [messages, setMessages] = useState([
         {
             id: "0",
@@ -20,8 +20,6 @@ export default function ChatPanel() {
     ]);
     const [input, setInput] = useState("");
     const [isThinking, setIsThinking] = useState(false);
-    
-
 
     const send = useCallback((text) => {
         if (!text.trim() || isThinking)
