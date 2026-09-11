@@ -3,6 +3,7 @@ import './App.css'
 import NavSidebar from './NavSidebar';
 import ChatView from './ChatView';
 import SystemMonitorView from './SystemMonitorView';
+import SystemProcessesView from './SystemProcessesView';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <div className='flex-1 overflow-hidden relative' style={{ background: "var(--color-background)" }}>
             {activeNav === "chat" && <ChatView></ChatView>}
             {activeNav === "monitor" && <SystemMonitorView></SystemMonitorView>}
+            {activeNav === "processes" && <SystemProcessesView></SystemProcessesView>}
           </div>
         </div>
 
