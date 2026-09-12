@@ -1,3 +1,7 @@
+// TODO:
+// 1. Add processes when fetches and request are complete 
+// 2. Get data for PID, PROCESS, CPU%, MEMORY, STATUS, ACTION
+
 export default function SystemProcessesView() {
     const activeTasks = 7;
     const running = "#22c55e";
@@ -6,12 +10,12 @@ export default function SystemProcessesView() {
             {/* Header */}
             <div className="flex items-center justify-between px-5 h-16 border-b flex-shrink-0" style={{ borderColor: "var(--color-border)" }}>
                 <div className="flex flex-col">
-                    <span className="text-sm font-semibold tracking-wide" style={{ fontFamily: "var(--color-display)", color: "var(--color-text)" }}>System Processes</span>
+                    <span className="text-sm font-semibold tracking-wide" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>System Processes</span>
                     <span className="text-[10px] text-slate-600 tracking-wide" style={{fontFamily: "var(--font-mono)"}}>{activeTasks} ACTIVE TASKS</span>
                 </div>
             </div>
             {/* Main Content */}
-            <div className="flex flex-col border rounded-xl h-full px-4 py-4" style={{ borderColor: "var(--color-border)" }}>
+            <div className="flex flex-col h-full px-4 py-4" style={{ borderColor: "var(--color-border)" }}>
                 <div className="flex flex-col border rounded-xl h-full" style={{ borderColor: "var(--color-border)", background: "var(--color-panel)" }}>
                     <table className="w-full table-fixed">
                         <colgroup>

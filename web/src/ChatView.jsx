@@ -1,5 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 
+// TODO:
+// Once backend completes set up fetches and requests for AI response of user input 
+
 const QUICK_COMMANDS = [
     "System status check",
     "Optimize memory",

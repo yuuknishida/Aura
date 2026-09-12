@@ -1,12 +1,16 @@
 import Card from "./Card";
 
+// TODO:
+// 1. Replace CPU placeholders and implement getting metrics for CPU, RAM, GPU, DISK I/O, MEMORY, NETWORK
+// 2. Get the top CPU CONSUMERS and percentages
+
 export default function SystemMonitorView() {
     return (
         <div className="flex flex-col h-full w-full">
             {/* Header */}
             <div className="flex items-center justify-between px-5 h-16 border-b flex-shrink-0" style={{borderColor: "var(--color-border)"}}>
                 <div className="flex flex-col">
-                    <span className="text-sm font-semibold tracking-wide" style={{fontFamily: "var(--color-display)", color: "var(--color-text)"}}>
+                    <span className="text-sm font-semibold tracking-wide" style={{fontFamily: "var(--font-display)", color: "var(--color-text)"}}>
                     System Monitor
                     </span>
                     <span style={{fontFamily: "var(--font-mono)"}} className="text-[10px] text-slate-600 tracking-wide">

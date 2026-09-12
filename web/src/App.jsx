@@ -4,6 +4,7 @@ import NavSidebar from './NavSidebar';
 import ChatView from './ChatView';
 import SystemMonitorView from './SystemMonitorView';
 import SystemProcessesView from './SystemProcessesView';
+import SystemLogView from './SystemLogView';
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             {activeNav === "chat" && <ChatView></ChatView>}
             {activeNav === "monitor" && <SystemMonitorView></SystemMonitorView>}
             {activeNav === "processes" && <SystemProcessesView></SystemProcessesView>}
+            {activeNav === "logs" && <SystemLogView></SystemLogView>}
           </div>
         </div>
 
