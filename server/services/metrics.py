@@ -1,37 +1,114 @@
-from server.main import app
-import os
-import time
+import subprocess as sp
 import psutil
-import GPUtil
+import time
+from sqlalchemy.orm import Session
 
-@app.get("/metrics/")
-async def get_metrics():
-    metrics = {}
+from db.database import SessionLocal
+from models.metrics import Metrics
 
-    metrics["CPU"] = psutil.cpu_percent(interval=None)
+POLL_INTERVAL_SECONDS = 5
 
-    ram = psutil.virtual_memory()
-    metrics["RAM"] = ram.percent
+def _read_gpu_metric():
+    gpu_memory_cmd = r'(((Get-Counter "\GPU Process Memory(*)\Local Usage").CounterSamples | where CookedValue).CookedValue | measure -sum).sum'
 
-    disk = psutil.disk_usage('/')
-    metrics["DISK"] = disk.percent
+    gpu_usage_cmd = r'(((Get-Counter "\GPU Engine(*engtype_3D)\Utilization Percentage").CounterSamples | where CookedValue).CookedValue | measure -sum).sum'
 
-    network = psutil.net_io_counters()
-    metrics["NETWORK_SENT_MB"]     = round(network.bytes_sent / (1024**2), 2)
-    metrics["NETWORK_RECEIVED_MB"] = round(network.bytes_recv / (1024**2), 2)
+    try:
+        mem_result = sp.run(['powershell', '-Command', gpu_memory_cmd], capture_output=True).stdout.decode("ascii")
+        usage_result = sp.run(['powershell', '-Command', gpu_usage_cmd], capture_output=True).stdout.decode("ascii")
 
-    metrics['TEMP'] = {}
-    if hasattr(psutil, "sensors_temperatures"):
-        temps = psutil.sensors_battery()
-        for name, entries in temps.items():
-            if entries:
-                metrics['TEMP'][name] = f"{entries[0].current}°C"
-    else:
-        metrics['TEMP'] = "Not supported on this OS"
+        mem_result = round(mem_result/1e6, 1)
+        usage_result = round(usage_result, 2)
 
-    gpus = GPUtil.getGPUs()
-    metrics['GPU'] = []
-    for gpu in gpus:
-        metrics['GPU'] = round(gpu.load * 100, 2)
+        return mem_result, usage_result
 
-    return metrics
+    except (sp.CalledProcessError, ValueError):
+        return "Error retrieving GPU data"
+
+def _read_cpu_metric():
+    cpu_percent = psutil.cpu_percent(interval=1.0)
+    return cpu_percent
+
+def _read_ram_metric():
+    mem_info = psutil.virtual_memory()
+    ram_percent = mem_info.percent
+    return ram_percent
+
+def _read_diskIO_metric(interval=1.0):
+    io_before = psutil.disk_io_counters()
+    bytes_read_before = io_before.read_bytes
+    bytes_write_before = io_before.write_bytes
+
+    time.sleep(interval)
+
+    io_after = psutil.disk_io_counters()
+    bytes_read_after = io_after.read_bytes
+    bytes_write_after = io_after.write_bytes
+
+    read_diff = bytes_read_after - bytes_read_before
+    write_diff = bytes_write_after - bytes_write_before
+
+    read_mbs = (read_diff / (1024 * 1024)) / interval
+    write_mbs = (write_diff / (1024 * 1024)) / interval
+
+    return read_mbs, write_mbs
+
+def _read_network_metric():
+    net_io_start = psutil.net_io_counters()
+    start_time = time.time()
+
+    time.sleep(1)
+
+    net_io_end = psutil.net_io_counters()
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+
+    bytes_sent = net_io_end.bytes_sent - net_io_start.bytes_sent
+    bytes_recv = net_io_end.bytes_recv - net_io_start.bytes_recv
+
+    mb_sent_per_sec = (bytes_sent / elapsed_time) / (1024 * 1024)
+    mb_recv_per_sec = (bytes_recv / elapsed_time) / (1024 * 1024)
+
+    return mb_recv_per_sec, mb_sent_per_sec
+
+def _read_temp_metric():
+    try:
+        result = sp.run(
+            [
+                "powershell",
+                "-Command",
+                "Get-CimInstance -Namespace root/wmi "
+                "-ClassName MSAcpi_ThermalZoneTemperature | "
+                "Select-Object -ExpandProperty CurrentTemperature"
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        temperatures = []
+
+        for line in result.stdout.splitlines():
+            line = line.strip()
+
+            if line.isdigit():
+                celsius = (int(line) / 10) - 273.15
+                temperatures.append(celsius)
+
+        if temperatures:
+            return temperatures[0], None
+
+        return None, None
+
+    except (sp.CalledProcessError, ValueError):
+        return None, None
+
+def _read_memory_metric():
+    mem = psutil.virtual_memory()
+
+    total_mb = mem.total / (1024 * 1024)
+    used_mb = mem.used / (1024 * 1024)
+    available_mb = mem.available / (1024 * 1024)
+
+    return total_mb, used_mb, available_mb

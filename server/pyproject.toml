@@ -1,11 +1,24 @@
 [project]
 name = "server"
-version = "0.1.0"
+version = "1.0.0"
+description="Simple AI assistant built with Livekit"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.141.1",
+    "google-genai>=2.24.0",
     "gputil>=1.4.0",
+    "moviepy>=2.2.1",
+    "openai>=3.15.0",
+    "opencv-python>=5.0.0.93",
     "psutil>=7.2.2",
+    "pyaudio>=0.2.14",
+    "pyautogui>=0.9.54",
+    "pymysql>=1.2.0",
+    "python-dotenv>=1.2.3",
+    "pyttsx3>=2.99",
+    "speechrecognition>=3.17.0",
+    "sqlalchemy>=2.0.52",
+    "uvicorn>=0.52.4",
 ]
 
 [tool.fastapi]
