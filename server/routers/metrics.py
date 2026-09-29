@@ -49,9 +49,11 @@ def _to_schema(row: Metrics) -> SystemMetric:
         unit=row.unit
     )
 
-@metrics_router.get("/", response_model=SystemMetricsResponse)
+@metrics_router.get("/acquire", response_model=SystemMetricsResponse)
 def get_metrics(db: Session = Depends(get_db)):
     latest: List[Metrics] = []
+    update_metrics(db)
+    
     for label in CHAT_PAGE_METRICS_TYPES:
         row = (
             db.query(Metrics)
@@ -70,9 +72,7 @@ def get_metrics(db: Session = Depends(get_db)):
         timestamp=datetime.now(timezone.utc),
     )
 
-@metrics_router.post("/acquire", response_model=SystemMetricsResponse, status_code=status.HTTP_201_CREATED)
-async def post_metric(db: Session = Depends(get_db)):
-    metrics = []
+def update_metrics(db: Session = Depends(get_db)):
     # Metric data
     cpu = _read_cpu_metric()
     ram = _read_ram_metric()

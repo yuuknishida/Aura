@@ -11,8 +11,7 @@ process_router = APIRouter(
     tags=["processes"]
 )
 
-@process_router.post("/acquire", response_model=ProcessResponse, status_code=status.HTTP_201_CREATED)
-def post_processes(db: Session = Depends(get_db)):
+def acquire_processes(db: Session):
     try:        
         processes = get_all_processes()
     except psutil.Error as exc:
@@ -32,7 +31,6 @@ def post_processes(db: Session = Depends(get_db)):
     db.commit()
 
     rows = db.query(Process).all()
-
     processes_validated = [ProcessInfo.model_validate(row) for row in rows]
 
     return ProcessResponse(
@@ -41,19 +39,14 @@ def post_processes(db: Session = Depends(get_db)):
     )
 
 @process_router.get("/all", response_model=ProcessResponse)
-async def get_processes(db: Session = Depends(get_db)):
-    db_processes = db.query(Process).all()
-    processes_validated = [ProcessInfo.model_validate(row) for row in db_processes]
-    return ProcessResponse(
-        processes=processes_validated,
-        active_count=sum(1 for process in processes_validated if process.status == "running"),
-    )
+def get_processes(db: Session = Depends(get_db)):
+    return acquire_processes(db)
 
 @process_router.delete("/{pid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_process(pid: int, db: Session = Depends(get_db)):
-    process = db.query(Process).filter(Process.pid == pid).first()
+    row = db.query(Process).filter(Process.pid == pid).first()
 
-    if not process:
+    if not row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Process with pid {pid} not found"
@@ -76,7 +69,7 @@ def delete_process(pid: int, db: Session = Depends(get_db)):
             detail=f"Process {pid} did not terminate"
         )
 
-    db.delete(process)
+    db.delete(row)
     db.commit()
 
     return None
