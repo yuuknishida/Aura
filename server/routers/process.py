@@ -11,7 +11,7 @@ process_router = APIRouter(
     tags=["processes"]
 )
 
-@process_router.post("/", response_model=ProcessResponse, status_code=status.HTTP_201_CREATED)
+@process_router.post("/acquire", response_model=ProcessResponse, status_code=status.HTTP_201_CREATED)
 def post_processes(db: Session = Depends(get_db)):
     try:        
         processes = get_all_processes()
@@ -40,7 +40,7 @@ def post_processes(db: Session = Depends(get_db)):
         active_count=sum(1 for process in processes_validated if process.status == "running"),
     )
 
-@process_router.get("/", response_model=ProcessResponse)
+@process_router.get("/all", response_model=ProcessResponse)
 async def get_processes(db: Session = Depends(get_db)):
     db_processes = db.query(Process).all()
     processes_validated = [ProcessInfo.model_validate(row) for row in db_processes]

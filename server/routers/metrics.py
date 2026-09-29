@@ -70,7 +70,7 @@ def get_metrics(db: Session = Depends(get_db)):
         timestamp=datetime.now(timezone.utc),
     )
 
-@metrics_router.post("/", response_model=SystemMetricsResponse, status_code=status.HTTP_201_CREATED)
+@metrics_router.post("/acquire", response_model=SystemMetricsResponse, status_code=status.HTTP_201_CREATED)
 async def post_metric(db: Session = Depends(get_db)):
     metrics = []
     # Metric data

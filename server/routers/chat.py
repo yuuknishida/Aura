@@ -16,7 +16,7 @@ def generate_ai_response(user_message: str) -> str:
     # TODO wire this into AI agent
     return f"Echo: {user_message}"
 
-@chat_router.post("/", response_model=ChatResponse)
+@chat_router.post("/create", response_model=ChatResponse)
 def send_response(request: ChatRequest, db: Session = Depends(get_db)):
     if not request.message.strip():
         raise HTTPException(status_code=400, detail="Message cannot be empty")
