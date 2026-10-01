@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      "/api": {
+      '^/(processes|chat|metrics)': {
         target: "http://localhost:8000",
         changeOrigin: true,
         secure: false
